@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>500俱樂部</title>
+
+<style>
+body{
+  margin:0;
+  background:#000;
+  color:#f5d77a;
+  font-family:"Microsoft JhengHei",sans-serif;
+  text-align:center;
+}
+
+/* 標題 */
+.title{font-size:48px;margin-top:30px;font-weight:bold}
+.top-text{font-size:36px;margin-top:10px}
+
+/* 中央容器 */
+.center{
+  margin:40px 0;
+  display:flex;
+  justify-content:center;
+  position:relative;
+}
+
+/* 只轉的外圈（⚠ 不包 iframe） */
+.ring{
+  position:absolute;
+  width:320px;
+  height:320px;
+  border-radius:50%;
+  border:6px solid #f5d77a;
+  animation:spin 12s linear infinite;
+  pointer-events:none; /* 關鍵：不吃點擊 */
+}
+
+/* 影片遮罩（真正可點） */
+.iframe-mask{
+  width:280px;
+  height:280px;
+  border-radius:50%;
+  overflow:hidden;
+  background:black;
+  position:relative;
+  z-index:2;
+}
+
+/* iframe 本體 */
+.iframe-mask iframe{
+  width:100%;
+  height:100%;
+  border:none;
+}
+
+/* 底部 */
+.bottom-text{font-size:36px;margin-bottom:40px}
+
+@keyframes spin{
+  from{transform:rotate(0deg)}
+  to{transform:rotate(360deg)}
+}
+</style>
+</head>
+
+<body>
+
+<div class="title">500俱樂部</div>
+<div class="top-text">〈餐會〉</div>
+
+<div class="center">
+  <!-- 外圈只負責轉 -->
+  <div class="ring"></div>
+
+  <!-- 影片本體（不轉、可點） -->
+  <div class="iframe-mask">
+    <iframe
+      src="https://www.youtube.com/embed/7hLM6wsCRtM?playsinline=1"
+      allow="encrypted-media"
+      allowfullscreen
+      playsinline
+      webkit-playsinline>
+    </iframe>
+  </div>
+</div>
+
+<div class="bottom-text">謝謝大家參加聚會❤️</div>
+
+</body>
+</html>
