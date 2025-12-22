@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dynamic Mosaic 名曲牆</title>
+
+<style>
+body{
+  margin:0;
+  min-height:100vh;
+  background:radial-gradient(circle at top,#111 0%,#000 70%);
+  font-family:"Microsoft JhengHei",sans-serif;
+  color:#fff;
+}
+
+/* ===== 拼貼牆 ===== */
+.mosaic{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(160px,1fr));
+  gap:14px;
+  padding:20px;
+}
+
+/* ===== 單格卡片 ===== */
+.tile{
+  position:relative;
+  border-radius:16px;
+  overflow:hidden;
+  cursor:pointer;
+  background:#000;
+  box-shadow:0 0 12px rgba(0,255,255,.25);
+  transition:.35s;
+}
+.tile:hover{
+  transform:scale(1.05);
+  box-shadow:0 0 22px rgba(0,255,255,.8);
+}
+
+/* ===== 縮圖 ===== */
+.tile img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block;
+}
+
+/* ===== 播放圖示 ===== */
+.play{
+  position:absolute;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:36px;
+  background:rgba(0,0,0,.35);
+  opacity:0;
+  transition:.3s;
+}
+.tile:hover .play{opacity:1}
+
+/* ===== 浮層播放器 ===== */
+.overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.85);
+  display:none;
+  justify-content:center;
+  align-items:center;
+  z-index:99;
+}
+
+.player{
+  width:90%;
+  max-width:720px;
+  aspect-ratio:16/9;
+  border-radius:20px;
+  overflow:hidden;
+  box-shadow:0 0 40px rgba(0,255,255,.8);
+}
+
+.player iframe{
+  width:100%;
+  height:100%;
+  border:none;
+}
+
+/* ===== 關閉 ===== */
+.close{
+  position:absolute;
+  top:20px;
+  right:26px;
+  font-size:28px;
+  cursor:pointer;
+}
+</style>
+</head>
+
+<body>
+
+<div class="mosaic" id="mosaic"></div>
+
+<div class="overlay" id="overlay">
+  <div class="close" onclick="closeVideo()">✕</div>
+  <div class="player">
+    <iframe id="player" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+  </div>
+</div>
+
+<script>
+const videos=[
+  {id:"jSaRUPIsDIA", title:"#繁華攏是夢"},
+  {id:"bKe8eohEfTQ", title:"流浪天涯"},
+  {id:"6J6UyVgzERg", title:"難忘的記誌"},
+  {id:"L_jWHffIx5E", title:"經典名曲"},
+  {id:"kXYiU_JCYtU", title:"搖滾傳奇"},
+  {id:"Zi_XLOBDo_Y", title:"不朽旋律"},
+  {id:"YdK_tHe6mIU", title:"離開的車站"},
+  {id:"aGdIyloSuPA", title:"感悟人生之歌《半生風霜一壺酒》"}
+];
+
+const mosaic=document.getElementById("mosaic");
+const overlay=document.getElementById("overlay");
+const player=document.getElementById("player");
+
+/* 生成拼貼牆 */
+videos.forEach(v=>{
+  const tile=document.createElement("div");
+  tile.className="tile";
+  tile.innerHTML=`
+    <img src="https://img.youtube.com/vi/${v.id}/hqdefault.jpg">
+    <div class="play">▶</div>
+  `;
+  tile.onclick=()=>playVideo(v.id);
+  mosaic.appendChild(tile);
+});
+
+/* 播放 */
+function playVideo(id){
+  player.src=`https://www.youtube.com/embed/${id}?autoplay=1&playsinline=1`;
+  overlay.style.display="flex";
+}
+
+/* 關閉 */
+function closeVideo(){
+  overlay.style.display="none";
+  player.src="";
+}
+</script>
+
+</body>
+</html>
