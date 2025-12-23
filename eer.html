@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>500俱樂部｜名曲舞台</title>
+
+<style>
+body{
+  margin:0;
+  background:#000;
+  color:#f5d77a;
+  font-family:"Microsoft JhengHei",sans-serif;
+  text-align:center;
+  overflow:hidden;
+}
+
+/* ===== 標題 ===== */
+.title{font-size:42px;margin-top:26px;font-weight:bold}
+.top-text{font-size:28px;margin-top:6px}
+
+/* ===== 舞台 ===== */
+.stage{
+  position:relative;
+  height:60vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
+
+/* ===== 唱片能量環 ===== */
+.ring{
+  position:absolute;
+  width:320px;
+  height:320px;
+  border-radius:50%;
+  background:conic-gradient(#00ffff,#ff00ff,#00ffff);
+  box-shadow:
+    0 0 30px rgba(0,255,255,.9),
+    0 0 60px rgba(255,0,255,.7);
+  animation:spin 12s linear infinite;
+  opacity:0;
+  transition:opacity .8s;
+  pointer-events:none;
+}
+.ring.show{opacity:1}
+
+.ring::before{
+  content:"";
+  position:absolute;
+  inset:14px;
+  border-radius:50%;
+  background:#000;
+}
+
+/* ===== 影片遮罩 ===== */
+.videoMask{
+  width:280px;
+  height:280px;
+  border-radius:50%;
+  overflow:hidden;
+  background:black;
+  z-index:2;
+}
+.videoMask iframe{
+  width:100%;
+  height:100%;
+  border:none;
+}
+
+/* ===== HUD 雷達掃描 ===== */
+.radar{
+  position:absolute;
+  width:520px;
+  height:520px;
+  border-radius:50%;
+  background:
+    radial-gradient(circle,
+      rgba(0,255,255,.25),
+      transparent 70%);
+  animation:radar 3s linear infinite;
+  opacity:0;
+  pointer-events:none;
+}
+.radar.show{opacity:.8}
+
+/* ===== 名曲軌道 ===== */
+.trackWall{
+  display:flex;
+  justify-content:center;
+  gap:18px;
+  margin-top:10px;
+}
+
+.track{
+  width:80px;
+  height:80px;
+  border-radius:50%;
+  background:
+    radial-gradient(circle,#222 40%,#000 60%);
+  box-shadow:0 0 10px #000;
+  cursor:pointer;
+  transition:.3s;
+}
+
+.track.active{
+  background:
+    conic-gradient(#00ffff,#ff00ff,#00ffff);
+  box-shadow:
+    0 0 20px rgba(0,255,255,.9),
+    0 0 40px rgba(255,0,255,.8);
+  animation:breath 1.2s ease-in-out infinite;
+}
+
+/* ===== 動畫 ===== */
+@keyframes spin{
+  from{transform:rotate(0deg)}
+  to{transform:rotate(360deg)}
+}
+@keyframes radar{
+  from{transform:rotate(0deg)}
+  to{transform:rotate(360deg)}
+}
+@keyframes breath{
+  0%{transform:scale(1)}
+  50%{transform:scale(1.12)}
+  100%{transform:scale(1)}
+}
+</style>
+</head>
+
+<body>
+
+<div class="title">500俱樂部</div>
+<div class="top-text">〈名曲舞台〉</div>
+
+<div class="stage">
+  <div class="ring" id="ring"></div>
+  <div class="radar" id="radar"></div>
+
+  <div class="videoMask">
+    <iframe
+      id="yt"
+      src=""
+      allow="autoplay; encrypted-media"
+      playsinline
+      webkit-playsinline
+      allowfullscreen>
+    </iframe>
+  </div>
+</div>
+
+<!-- ===== 名曲軌道 ===== -->
+<div class="trackWall">
+  <div class="track" onclick="play(0)"></div>
+  <div class="track" onclick="play(1)"></div>
+  <div class="track" onclick="play(2)"></div>
+</div>
+
+<script>
+const videos=[
+  "7N068ivPsoc?",
+  "TmGSNAwgXOA",
+  "GQjgdusXSh0"
+];
+
+const yt=document.getElementById("yt");
+const ring=document.getElementById("ring");
+const radar=document.getElementById("radar");
+const tracks=document.querySelectorAll(".track");
+
+function play(i){
+  tracks.forEach(t=>t.classList.remove("active"));
+
+  tracks[i].classList.add("active");
+  ring.classList.add("show");
+  radar.classList.add("show");
+
+  yt.src="";
+  setTimeout(()=>{
+    yt.src=`https://www.youtube.com/embed/${videos[i]}?autoplay=1&playsinline=1&mute=0`;
+  },100);
+}
+</script>
+
+</body>
+</html>
