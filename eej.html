@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DJ Radar Player</title>
+
+<style>
+body{
+  margin:0;
+  background:#000;
+  color:#0ff;
+  font-family:Arial, sans-serif;
+  overflow:hidden;
+}
+
+/* ===== 標題 ===== */
+.title{
+  text-align:center;
+  font-size:32px;
+  margin-top:20px;
+  font-weight:bold;
+  letter-spacing:2px;
+}
+
+/* ===== 雷達容器 ===== */
+.radarWrap{
+  position:relative;
+  width:320px;
+  height:320px;
+  margin:40px auto 0;
+  border-radius:50%;
+  border:2px solid #0ff;
+  box-shadow:0 0 20px #0ff;
+}
+
+/* 掃描線 */
+.scan{
+  position:absolute;
+  width:50%;
+  height:2px;
+  background:linear-gradient(90deg, #0ff, transparent);
+  top:50%;
+  left:50%;
+  transform-origin:left center;
+  animation:scan 2.5s linear infinite;
+}
+
+@keyframes scan{
+  from{ transform:rotate(0deg); }
+  to{ transform:rotate(360deg); }
+}
+
+/* ===== 唱片 ===== */
+.vinyl{
+  position:absolute;
+  width:180px;
+  height:180px;
+  background:radial-gradient(circle,#222 30%,#000 70%);
+  border-radius:50%;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%);
+  animation:spin 6s linear infinite;
+  box-shadow:0 0 15px #000;
+}
+
+.vinyl::after{
+  content:'';
+  position:absolute;
+  width:18px;
+  height:18px;
+  background:#0ff;
+  border-radius:50%;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%);
+}
+
+@keyframes spin{
+  from{ transform:translate(-50%,-50%) rotate(0deg); }
+  to{ transform:translate(-50%,-50%) rotate(360deg); }
+}
+
+/* ===== 播放按鈕 ===== */
+.playBtn{
+  position:absolute;
+  bottom:-60px;
+  left:50%;
+  transform:translateX(-50%);
+  padding:12px 26px;
+  border:2px solid #0ff;
+  color:#0ff;
+  font-size:16px;
+  cursor:pointer;
+  letter-spacing:2px;
+  text-align:center;
+}
+
+.playBtn:hover{
+  background:#0ff;
+  color:#000;
+}
+</style>
+</head>
+
+<body>
+
+<div class="title">DJ RADAR PLAYER</div>
+
+<div class="radarWrap">
+  <div class="scan"></div>
+  <div class="vinyl"></div>
+
+  <div class="playBtn" onclick="openYT()">
+    ▶ PLAY ON YOUTUBE
+  </div>
+</div>
+
+<script>
+function openYT(){
+  // ⚠️ 換成你的 YouTube 影片
+  window.location.href = "https://www.youtube.com/embed/77GfAcJLmug";
+}
+</script>
+
+</body>
+</html>
