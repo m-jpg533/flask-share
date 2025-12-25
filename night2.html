@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DJ Radar · Commercial Display</title>
+
+<style>
+body{
+  margin:0;
+  background:#000;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+  font-family:"Microsoft JhengHei",sans-serif;
+  color:#00ffff;
+  overflow:hidden;
+}
+
+/* ===== 標題 ===== */
+.title{
+  position:absolute;
+  top:28px;
+  font-size:38px;
+  letter-spacing:2px;
+  text-shadow:0 0 20px #00ffff;
+  z-index:10;
+}
+
+/* ===== 雷達主體 ===== */
+.radar{
+  position:relative;
+  width:520px;
+  height:520px;
+  border-radius:50%;
+  background:
+    radial-gradient(circle,
+      rgba(0,255,255,.35),
+      rgba(0,255,255,.08) 60%,
+      #000 72%);
+  box-shadow:0 0 50px rgba(0,255,255,.9);
+  overflow:hidden;
+}
+
+/* ===== 旋轉外圈 ===== */
+.radar::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  border-radius:50%;
+  background:conic-gradient(#00ffff,#003333,#00ffff);
+  animation:spin 16s linear infinite;
+  opacity:.7;
+  pointer-events:none;
+}
+
+/* ===== 掃描線 ===== */
+.scan{
+  position:absolute;
+  inset:0;
+  border-radius:50%;
+  pointer-events:none;
+}
+.scan::before{
+  content:"";
+  position:absolute;
+  width:50%;
+  height:2px;
+  background:linear-gradient(to right,
+    rgba(0,255,255,0),
+    rgba(0,255,255,.9));
+  top:50%;
+  left:50%;
+  transform-origin:left center;
+  animation:scan 3s linear infinite;
+  box-shadow:0 0 12px #00ffff;
+}
+
+/* ===== 唱片 ===== */
+.disc{
+  position:absolute;
+  inset:120px;
+  border-radius:50%;
+  overflow:hidden;
+  z-index:3;
+  background:#000;
+}
+
+/* YouTube iframe 一定不能吃事件 */
+#player iframe{
+  width:100%;
+  height:100%;
+  border:none;
+  border-radius:50%;
+  pointer-events:none;
+}
+
+/* ===== Click Layer（唯一可點） ===== */
+.click-layer{
+  position:absolute;
+  inset:0;
+  z-index:9999;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  font-size:34px;
+  cursor:pointer;
+  background:rgba(0,0,0,.65);
+  text-shadow:0 0 20px #00ffff;
+}
+
+/* ===== HUD ===== */
+.hud{
+  position:absolute;
+  bottom:30px;
+  font-size:18px;
+  letter-spacing:2px;
+  text-shadow:0 0 12px #00ffff;
+  z-index:9;
+}
+
+/* ===== TARGET LOCK ===== */
+.lock{
+  position:absolute;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%);
+  font-size:30px;
+  opacity:0;
+  letter-spacing:4px;
+  color:#00ffff;
+  text-shadow:0 0 20px #00ffff;
+  pointer-events:none;
+}
+
+/* ===== 雷達命中光點 ===== */
+.dot{
+  position:absolute;
+  width:8px;
+  height:8px;
+  background:#00ffff;
+  border-radius:50%;
+  box-shadow:0 0 15px #00ffff;
+  animation:fade 1.2s forwards;
+  pointer-events:none;
+}
+
+@keyframes spin{
+  from{transform:rotate(0deg)}
+  to{transform:rotate(360deg)}
+}
+@keyframes scan{
+  to{transform:rotate(360deg)}
+}
+@keyframes fade{
+  to{opacity:0; transform:scale(2)}
+}
+</style>
+</head>
+
+<body>
+
+<div class="title">DJ Radar · Commercial</div>
+
+<div class="radar" id="radar">
+
+  <div class="disc">
+    <div id="player"></div>
+  </div>
+
+  <div class="scan"></div>
+
+  <!-- 唯一點擊層 -->
+  <div class="click-layer" id="start">
+    ▶ CLICK TO START
+  </div>
+
+  <div class="lock" id="lock">TARGET LOCK</div>
+</div>
+
+<div class="hud" id="hud">READY</div>
+
+<!-- YouTube API -->
+<script src="https://www.youtube.com/iframe_api"></script>
+
+<script>
+let player, started=false;
+
+function onYouTubeIframeAPIReady(){
+  player=new YT.Player("player",{
+    videoId:"mgm9TI5PxZE",   // 換成你的 YouTube ID
+    playerVars:{
+      playsinline:1,
+      controls:0,
+      rel:0,
+      modestbranding:1
+    }
+  });
+}
+
+const start=document.getElementById("start");
+const hud=document.getElementById("hud");
+const lock=document.getElementById("lock");
+const radar=document.getElementById("radar");
+
+start.onclick=()=>{
+  player.playVideo();   // ✅ 使用者直接點擊 → 一定有聲
+  start.style.display="none";
+  hud.innerText="PLAYING";
+  started=true;
+};
+
+/* 夜店雷達效果 */
+setInterval(()=>{
+  if(!started) return;
+
+  lock.style.opacity=1;
+  setTimeout(()=>lock.style.opacity=0,500);
+
+  const dot=document.createElement("div");
+  dot.className="dot";
+  dot.style.left=Math.random()*100+"%";
+  dot.style.top=Math.random()*100+"%";
+  radar.appendChild(dot);
+  setTimeout(()=>dot.remove(),1200);
+},1500);
+</script>
+
+</body>
+</html>
