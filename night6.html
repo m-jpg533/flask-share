@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DJ Radar · Click to Play</title>
+
+<style>
+body{
+  margin:0;
+  background:#000;
+  height:100svh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  font-family:"Microsoft JhengHei",sans-serif;
+  color:#00ffff;
+}
+
+.radar{
+  position:relative;
+  width:min(80vmin,80vh);
+  aspect-ratio:1;
+  border-radius:50%;
+  background:radial-gradient(circle,
+    rgba(0,255,255,.35),
+    rgba(0,255,255,.05) 60%,
+    #000 72%);
+  box-shadow:0 0 60px rgba(0,255,255,.9);
+}
+
+.radar::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  border-radius:50%;
+  background:conic-gradient(#00ffff,#003333,#00ffff);
+  animation:spin 18s linear infinite;
+  opacity:.6;
+}
+
+.disc{
+  position:absolute;
+  inset:18%;
+  border-radius:50%;
+  overflow:hidden;
+  background:#000;
+}
+
+.disc iframe{
+  width:100%;
+  height:100%;
+  border:0;
+  pointer-events:none; /* 由點擊層接管 */
+}
+
+.clickLayer{
+  position:absolute;
+  inset:0;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  font-size:28px;
+  cursor:pointer;
+  background:rgba(0,0,0,.55);
+  z-index:5;
+  text-shadow:0 0 15px #00ffff;
+}
+
+@keyframes spin{
+  to{transform:rotate(360deg)}
+}
+</style>
+</head>
+
+<body>
+
+<div class="radar">
+  <div class="disc">
+    <div id="player"></div>
+  </div>
+
+  <div class="clickLayer" id="clickLayer">
+    ▶ TAP / CLICK TO PLAY
+  </div>
+</div>
+
+<script src="https://www.youtube.com/iframe_api"></script>
+<script>
+let player;
+let videoId = "0qEGfJeXDa0"; // 你要的 YouTube ID
+
+function onYouTubeIframeAPIReady(){
+  player = new YT.Player("player",{
+    width:"100%",
+    height:"100%",
+    videoId: videoId,
+    playerVars:{
+      playsinline:1,
+      controls:0,
+      rel:0
+    }
+  });
+}
+
+const layer = document.getElementById("clickLayer");
+
+layer.addEventListener("click", () => {
+  // ✅ 使用者手勢中直接播放（關鍵）
+  player.playVideo();
+  layer.style.display = "none";
+});
+</script>
+
+</body>
+</html>
