@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DJ Radar PRO</title>
+
+<style>
+body{
+  margin:0;
+  background:#000;
+  color:#00ffff;
+  font-family:"Microsoft JhengHei",sans-serif;
+  overflow:hidden;
+}
+
+/* ===== 名曲牆 ===== */
+.playlist{
+  position:fixed;
+  left:0;
+  top:0;
+  width:220px;
+  height:100%;
+  background:rgba(0,0,0,.85);
+  border-right:1px solid #00ffff;
+  padding:20px;
+}
+.playlist h3{
+  text-align:center;
+  margin-bottom:15px;
+}
+.song{
+  padding:10px;
+  border-bottom:1px solid rgba(0,255,255,.3);
+  cursor:pointer;
+}
+.song:hover{ background:rgba(0,255,255,.15); }
+
+/* ===== 雷達 ===== */
+.radar{
+  position:absolute;
+  left:50%;
+  top:50%;
+  transform:translate(-50%,-50%);
+  width:520px;
+  height:520px;
+  border-radius:50%;
+  background:radial-gradient(circle,
+    rgba(0,255,255,.35),
+    rgba(0,255,255,.05) 60%,
+    #000 72%);
+  box-shadow:0 0 50px #00ffff;
+}
+
+/* 旋轉掃描 */
+.scan::before{
+  content:"";
+  position:absolute;
+  width:50%;
+  height:2px;
+  background:linear-gradient(to right,
+    rgba(0,255,255,0),
+    rgba(0,255,255,.9));
+  top:50%;
+  left:50%;
+  transform-origin:left center;
+  animation:scan 3s linear infinite;
+}
+
+/* 命中光點 */
+.dot{
+  position:absolute;
+  width:8px;
+  height:8px;
+  border-radius:50%;
+  background:#00ffff;
+  box-shadow:0 0 12px #00ffff;
+  animation:fade 3s forwards;
+}
+
+@keyframes fade{
+  to{opacity:0; transform:scale(3);}
+}
+@keyframes scan{to{transform:rotate(360deg)}}
+
+/* ===== 唱片 ===== */
+.disc{
+  position:absolute;
+  inset:140px;
+  border-radius:50%;
+  background:#111;
+  animation:spin 6s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ===== YouTube ===== */
+.video{
+  position:absolute;
+  inset:160px;
+  border-radius:50%;
+  overflow:hidden;
+}
+iframe{width:100%;height:100%;border:none;}
+
+/* ===== HUD ===== */
+.hud{
+  position:fixed;
+  bottom:30px;
+  left:50%;
+  transform:translateX(-50%);
+  display:flex;
+  gap:20px;
+  align-items:center;
+}
+.btn{
+  padding:10px 18px;
+  border:1px solid #00ffff;
+  cursor:pointer;
+}
+.btn:hover{background:#00ffff;color:#000}
+
+/* ===== 時間軸 ===== */
+.timeline{
+  width:300px;
+  height:6px;
+  background:#003333;
+  overflow:hidden;
+}
+.progress{
+  width:0%;
+  height:100%;
+  background:#00ffff;
+  transition:.2s;
+}
+
+/* ===== 啟動層 ===== */
+.start{
+  position:fixed;
+  inset:0;
+  background:#000;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  font-size:32px;
+  cursor:pointer;
+  z-index:999;
+}
+</style>
+</head>
+
+<body>
+
+<div class="playlist">
+  <h3>🎧 名曲牆</h3>
+  <div class="song" data-id="pMvHuxjFoNo">DJ Track 01</div>
+  <div class="song" data-id="0BjRJxFiO6o">DJ Track 02</div>
+  <div class="song" data-id="mhzYTIhAlYE">DJ Track 03</div>
+</div>
+
+<div class="radar">
+  <div class="scan"></div>
+  <div class="disc"></div>
+
+  <div class="video">
+    <iframe id="yt"></iframe>
+  </div>
+</div>
+
+<div class="hud">
+  <div class="btn" id="play">▶</div>
+  <div class="btn" id="pause">⏸</div>
+  <div class="btn" id="next">⏭</div>
+  <div class="timeline">
+    <div class="progress" id="progress"></div>
+  </div>
+</div>
+
+<div class="start" id="start">▶ CLICK TO START</div>
+
+<script>
+const yt=document.getElementById("yt");
+const start=document.getElementById("start");
+const songs=[...document.querySelectorAll(".song")];
+let index=0, playing=false, progress=0;
+
+function loadSong(i){
+  yt.src=`https://www.youtube.com/embed/${songs[i].dataset.id}?autoplay=1&mute=0`;
+  progress=0;
+}
+
+start.onclick=()=>{
+  start.style.display="none";
+  loadSong(0);
+  playing=true;
+};
+
+songs.forEach((s,i)=>{
+  s.onclick=()=>{index=i;loadSong(i);}
+});
+
+document.getElementById("play").onclick=()=>yt.contentWindow.postMessage('{"event":"command","func":"playVideo"}',"*");
+document.getElementById("pause").onclick=()=>yt.contentWindow.postMessage('{"event":"command","func":"pauseVideo"}',"*");
+document.getElementById("next").onclick=()=>{
+  index=(index+1)%songs.length;
+  loadSong(index);
+};
+
+/* ===== 模擬時間軸 ===== */
+setInterval(()=>{
+  if(playing){
+    progress=(progress+0.2)%100;
+    document.getElementById("progress").style.width=progress+"%";
+  }
+},500);
+
+/* ===== 雷達命中光點 ===== */
+setInterval(()=>{
+  const dot=document.createElement("div");
+  dot.className="dot";
+  const r=250*Math.random();
+  const a=Math.random()*Math.PI*2;
+  dot.style.left=260+r*Math.cos(a)+"px";
+  dot.style.top=260+r*Math.sin(a)+"px";
+  document.querySelector(".radar").appendChild(dot);
+  setTimeout(()=>dot.remove(),3000);
+},1200);
+</script>
+
+</body>
+</html>
