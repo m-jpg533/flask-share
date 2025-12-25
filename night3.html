@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DJ Radar · Commercial Showcase</title>
+
+<style>
+/* ===== 全域 ===== */
+body{
+  margin:0;
+  background:#000;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+  font-family:"Microsoft JhengHei",sans-serif;
+  color:#00ffff;
+  overflow:hidden;
+}
+
+/* ===== 夜店背景閃光 ===== */
+body.playing{
+  animation:club 3s infinite alternate;
+}
+@keyframes club{
+  from{background:#000}
+  to{background:#020a10}
+}
+
+/* ===== 商用 Logo ===== */
+.logo{
+  position:absolute;
+  top:16px;
+  left:20px;
+  font-size:22px;
+  letter-spacing:3px;
+  opacity:.8;
+  text-shadow:0 0 15px #00ffff;
+  z-index:20;
+}
+
+/* ===== 標題 ===== */
+.title{
+  position:absolute;
+  top:28px;
+  font-size:36px;
+  text-shadow:0 0 20px #00ffff;
+  z-index:10;
+}
+
+/* ===== 雷達 ===== */
+.radar{
+  position:relative;
+  width:520px;
+  height:520px;
+  border-radius:50%;
+  background:radial-gradient(circle,
+    rgba(0,255,255,.35),
+    rgba(0,255,255,.08) 60%,
+    #000 72%);
+  box-shadow:0 0 50px rgba(0,255,255,.9);
+  overflow:hidden;
+}
+
+/* 外圈 */
+.radar::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  border-radius:50%;
+  background:conic-gradient(#00ffff,#003333,#00ffff);
+  animation:spin 16s linear infinite;
+  opacity:.7;
+  pointer-events:none;
+}
+
+/* 掃描線 */
+.scan::before{
+  content:"";
+  position:absolute;
+  width:50%;
+  height:2px;
+  background:linear-gradient(to right,
+    rgba(0,255,255,0),
+    rgba(0,255,255,.9));
+  top:50%;
+  left:50%;
+  transform-origin:left center;
+  animation:scan 3s linear infinite;
+  box-shadow:0 0 12px #00ffff;
+}
+
+/* 唱片 */
+.disc{
+  position:absolute;
+  inset:120px;
+  border-radius:50%;
+  overflow:hidden;
+  background:#000;
+  z-index:3;
+}
+#player iframe{
+  width:100%;
+  height:100%;
+  border:none;
+  border-radius:50%;
+  pointer-events:none;
+}
+
+/* Click Layer */
+.click{
+  position:absolute;
+  inset:0;
+  z-index:999;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  font-size:34px;
+  background:rgba(0,0,0,.65);
+  cursor:pointer;
+}
+
+/* HUD */
+.hud{
+  position:absolute;
+  bottom:110px;
+  font-size:18px;
+  letter-spacing:2px;
+}
+
+/* TARGET LOCK */
+.lock{
+  position:absolute;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%);
+  font-size:30px;
+  opacity:0;
+  text-shadow:0 0 20px #00ffff;
+}
+
+/* ===== 名曲牆 ===== */
+.track-wall{
+  position:absolute;
+  bottom:20px;
+  display:flex;
+  gap:18px;
+  z-index:20;
+}
+.track{
+  width:54px;
+  height:54px;
+  border-radius:50%;
+  border:2px solid #00ffff;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  font-size:12px;
+  cursor:pointer;
+  opacity:.6;
+}
+.track.active{
+  opacity:1;
+  box-shadow:0 0 20px #00ffff;
+  animation:spin 6s linear infinite;
+}
+
+/* 動畫 */
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes scan{to{transform:rotate(360deg)}}
+</style>
+</head>
+
+<body>
+
+<div class="logo">500 club</div>
+<div class="title">DJ Radar · Showcase</div>
+
+<div class="radar" id="radar">
+  <div class="disc">
+    <div id="player"></div>
+  </div>
+  <div class="scan"></div>
+  <div class="click" id="start">▶ CLICK TO START</div>
+  <div class="lock" id="lock">TARGET LOCK</div>
+</div>
+
+<div class="hud" id="hud">READY</div>
+
+<!-- 名曲牆 -->
+<div class="track-wall" id="wall">
+  <div class="track" data-id="XEjLoHdbVeE">01</div>
+  <div class="track" data-id="TmGSNAwgXOA">02</div>
+  <div class="track" data-id="JHBTUSNPN7U">03</div>
+</div>
+
+<script src="https://www.youtube.com/iframe_api"></script>
+<script>
+let player, started=false, current;
+
+function onYouTubeIframeAPIReady(){
+  player=new YT.Player("player",{playerVars:{playsinline:1,controls:0}});
+}
+
+const start=document.getElementById("start");
+const hud=document.getElementById("hud");
+const lock=document.getElementById("lock");
+const tracks=document.querySelectorAll(".track");
+
+start.onclick=()=>{
+  play(tracks[0]);
+  start.style.display="none";
+  document.body.classList.add("playing");
+};
+
+tracks.forEach(t=>{
+  t.onclick=()=>play(t);
+});
+
+function play(el){
+  tracks.forEach(t=>t.classList.remove("active"));
+  el.classList.add("active");
+  player.loadVideoById(el.dataset.id);
+  hud.innerText="PLAYING";
+  lock.style.opacity=1;
+  setTimeout(()=>lock.style.opacity=0,500);
+}
+</script>
+
+</body>
+</html>
