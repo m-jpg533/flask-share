@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DJ Radar · Commercial</title>
+
+<style>
+:root{--ui-scale:1;}
+@media (min-width:2560px){:root{--ui-scale:1.6}}
+@media (min-width:3840px){:root{--ui-scale:2.2}}
+
+body{
+  margin:0;
+  background:#000;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+  font-family:"Microsoft JhengHei",sans-serif;
+  color:#0ff;
+  overflow:hidden;
+  transform:scale(var(--ui-scale));
+  transform-origin:center;
+}
+
+.title{
+  position:absolute;
+  top:20px;
+  font-size:36px;
+  text-shadow:0 0 15px #0ff;
+}
+
+.radar{
+  position:relative;
+  width:70vmin;
+  height:70vmin;
+  max-width:900px;
+  max-height:900px;
+  border-radius:50%;
+  background:radial-gradient(circle,rgba(0,255,255,.35),rgba(0,255,255,.05) 60%,#000 72%);
+  box-shadow:0 0 50px rgba(0,255,255,.9);
+}
+
+.radar::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  border-radius:50%;
+  background:conic-gradient(#0ff,#033,#0ff);
+  animation:spin 16s linear infinite;
+  opacity:.6;
+}
+
+.scan{
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+}
+
+.scan::before{
+  content:"";
+  position:absolute;
+  width:50%;
+  height:2px;
+  top:50%;
+  left:50%;
+  transform-origin:left center;
+  background:linear-gradient(to right,transparent,#0ff);
+  box-shadow:0 0 12px #0ff;
+}
+
+.disc{
+  position:absolute;
+  inset:22%;
+  border-radius:50%;
+  overflow:hidden;
+  background:#000;
+  z-index:3;
+}
+
+#player iframe{
+  width:100%;
+  height:100%;
+  border:none;
+  pointer-events:none;
+}
+
+.click{
+  position:absolute;
+  inset:0;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  font-size:32px;
+  background:rgba(0,0,0,.7);
+  cursor:pointer;
+  z-index:5;
+}
+
+.dot{
+  position:absolute;
+  width:6px;
+  height:6px;
+  background:#0ff;
+  border-radius:50%;
+  box-shadow:0 0 12px #0ff;
+  animation:fade 1s forwards;
+}
+
+.wall{
+  position:absolute;
+  bottom:20px;
+  display:flex;
+  gap:12px;
+}
+
+.track{
+  padding:8px 14px;
+  border:1px solid #0ff;
+  border-radius:16px;
+  cursor:pointer;
+  text-shadow:0 0 8px #0ff;
+}
+
+.track:hover{background:#0ff;color:#000}
+
+.hud{
+  position:absolute;
+  top:20px;
+  left:20px;
+  z-index:10;
+}
+
+.logo{font-size:28px;font-weight:bold}
+.status{font-size:14px;opacity:.8}
+.trackname{margin-top:6px;font-size:18px}
+
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes fade{to{opacity:0;transform:scale(2)}}
+</style>
+</head>
+
+<body>
+
+<div class="title">DJ Radar · Commercial</div>
+
+<div class="radar" id="radar">
+  <div class="scan" id="scan"></div>
+  <div class="disc" id="disc"><div id="player"></div></div>
+  <div class="click" id="click">▶ CLICK TO START</div>
+</div>
+
+<div class="wall">
+  <div class="track" data-id="IOcLRLu6HC0">Night Drive</div>
+  <div class="track" data-id="4F9r3G_2Qb0">Cyber City</div>
+  <div class="track" data-id="ui3IcnvbHFA">DJ Future</div>
+</div>
+
+<div class="hud">
+  <div class="logo">PP</div>
+  <div class="status" id="mode">LIVE MODE</div>
+  <div class="trackname" id="trackName">Night Drive</div>
+</div>
+
+<script src="https://www.youtube.com/iframe_api"></script>
+
+<script>
+let player, started=false, dragging=false;
+let demoMode=false, demoIndex=0, demoTimer, idleTimer;
+const scan=document.getElementById("scan");
+const disc=document.getElementById("disc");
+const radar=document.getElementById("radar");
+const click=document.getElementById("click");
+const modeLabel=document.getElementById("mode");
+const trackLabel=document.getElementById("trackName");
+
+const demoTracks=["TonEkCHSfHU","TmGSNAwgXOA","7hLM6wsCRtM"];
+
+function onYouTubeIframeAPIReady(){
+  player=new YT.Player("player",{videoId:"IOcLRLu6HC0",playerVars:{playsinline:1,controls:0}});
+}
+
+click.onclick=()=>{
+  player.playVideo();
+  click.style.display="none";
+  started=true;
+};
+
+disc.addEventListener("pointerdown",e=>{
+  if(!started) return;
+  dragging=true;
+  startX=e.clientX;
+  startTime=player.getCurrentTime();
+  player.pauseVideo();
+});
+
+window.addEventListener("pointermove",e=>{
+  if(!dragging) return;
+  const dx=e.clientX-startX;
+  player.seekTo(Math.max(0,startTime+dx*0.03),true);
+  scan.style.transform=`rotate(${dx*0.6}deg)`;
+  spawnDot(dx*0.6);
+});
+
+window.addEventListener("pointerup",()=>{
+  if(!dragging) return;
+  dragging=false;
+  scan.style.transform="";
+  player.playVideo();
+});
+
+function spawnDot(a){
+  const d=document.createElement("div");
+  d.className="dot";
+  const r=50+Math.random()*40;
+  const rad=a*Math.PI/180;
+  d.style.left=50+r*Math.cos(rad)+"%";
+  d.style.top =50+r*Math.sin(rad)+"%";
+  radar.appendChild(d);
+  setTimeout(()=>d.remove(),1000);
+}
+
+document.querySelectorAll(".track").forEach(t=>{
+  t.onclick=()=>{
+    if(!started) return;
+    stopDemo();
+    trackLabel.textContent=t.textContent;
+    player.loadVideoById({
+  videoId: t.dataset.id,
+  startSeconds: 90
+});
+
+  };
+});
+
+function startDemo(){
+  demoMode=true;
+  modeLabel.textContent="DEMO MODE";
+  runDemo();
+}
+
+function stopDemo(){
+  demoMode=false;
+  modeLabel.textContent="LIVE MODE";
+  clearTimeout(demoTimer);
+}
+
+function runDemo(){
+  if(!demoMode) return;
+  player.loadVideoById(demoTracks[demoIndex]);
+  demoIndex=(demoIndex+1)%demoTracks.length;
+  demoTimer=setTimeout(runDemo,50000);
+}
+
+function resetIdle(){
+  clearTimeout(idleTimer);
+  if(demoMode) stopDemo();
+  idleTimer=setTimeout(startDemo,30000);
+}
+
+["pointerdown","mousemove","touchstart"].forEach(e=>{
+  window.addEventListener(e,resetIdle);
+});
+resetIdle();
+</script>
+
+</body>
+</html>
