@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DJ Radar · Mobile Sound OK</title>
+
+<style>
+body{
+  margin:0;
+  background:#000;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+  font-family:"Microsoft JhengHei",sans-serif;
+  color:#0ff;
+  overflow:hidden;
+}
+
+/* ===== 標題 ===== */
+.title{
+  position:absolute;
+  top:16px;
+  font-size:26px;
+  text-shadow:0 0 15px #0ff;
+}
+
+/* ===== 雷達 ===== */
+.radar{
+  position:relative;
+  width:80vmin;
+  height:80vmin;
+  max-width:800px;
+  max-height:800px;
+  border-radius:50%;
+  background:radial-gradient(circle,
+    rgba(0,255,255,.35),
+    rgba(0,255,255,.05) 60%,
+    #000 72%);
+  box-shadow:0 0 50px rgba(0,255,255,.9);
+}
+
+/* 外圈旋轉 */
+.radar::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  border-radius:50%;
+  background:conic-gradient(#0ff,#033,#0ff);
+  animation:spin 16s linear infinite;
+  opacity:.6;
+}
+
+/* 掃描線 */
+.scan{
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+}
+.scan::before{
+  content:"";
+  position:absolute;
+  width:50%;
+  height:2px;
+  top:50%;
+  left:50%;
+  transform-origin:left center;
+  background:linear-gradient(to right,transparent,#0ff);
+  box-shadow:0 0 12px #0ff;
+}
+
+/* ===== 唱片 ===== */
+.disc{
+  position:absolute;
+  inset:22%;
+  border-radius:50%;
+  overflow:hidden;
+  z-index:3;
+  background:#000;
+}
+
+/* YouTube iframe 必須可點 */
+#player iframe{
+  width:100%;
+  height:100%;
+  border:none;
+  pointer-events:auto;
+}
+
+/* ===== 點擊解鎖層 ===== */
+.click{
+  position:absolute;
+  inset:0;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  font-size:26px;
+  background:rgba(0,0,0,.75);
+  cursor:pointer;
+  z-index:5;
+}
+
+/* 名曲牆 */
+.wall{
+  position:absolute;
+  bottom:14px;
+  display:flex;
+  gap:10px;
+}
+.track{
+  padding:6px 12px;
+  border:1px solid #0ff;
+  border-radius:14px;
+  cursor:pointer;
+  font-size:14px;
+}
+.track:hover{
+  background:#0ff;
+  color:#000;
+}
+
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+
+<body>
+
+<div class="title">DJ Radar · Commercial</div>
+
+<div class="radar" id="radar">
+  <div class="scan" id="scan"></div>
+
+  <div class="disc" id="disc">
+    <div id="player"></div>
+  </div>
+
+  <!-- 手機聲音解鎖 -->
+  <div class="click" id="click">
+    ▶ TAP TO START SOUND
+  </div>
+</div>
+
+<div class="wall">
+  <div class="track" data-id="Uud4IHZ2B_g">Night Drive</div>
+  <div class="track" data-id="4F9r3G_2Qb0">Cyber City</div>
+  <div class="track" data-id="ui3IcnvbHFA">DJ Future</div>
+</div>
+
+<script src="https://www.youtube.com/iframe_api"></script>
+
+<script>
+let player;
+let started=false;
+const click=document.getElementById("click");
+const scan=document.getElementById("scan");
+const disc=document.getElementById("disc");
+
+/* ===== YouTube 初始化 ===== */
+function onYouTubeIframeAPIReady(){
+  player = new YT.Player("player",{
+    videoId:"IOcLRLu6HC0",
+    playerVars:{
+      playsinline:1,
+      controls:0,
+      rel:0,
+      modestbranding:1
+    }
+  });
+}
+
+/* ===== 手機合法解鎖聲音 ===== */
+click.addEventListener("click",()=>{
+  if(!player) return;
+
+  player.mute();          // ① 先靜音
+  player.playVideo();     // ② 播放（手機允許）
+  setTimeout(()=>{
+    player.unMute();      // ③ 解鎖聲音
+  },300);
+
+  click.style.display="none";
+  started=true;
+});
+
+/* ===== Scratch ===== */
+let dragging=false;
+let startX=0;
+let startTime=0;
+
+disc.addEventListener("pointerdown",e=>{
+  if(!started) return;
+  dragging=true;
+  startX=e.clientX;
+  startTime=player.getCurrentTime();
+  player.pauseVideo();
+});
+
+window.addEventListener("pointermove",e=>{
+  if(!dragging) return;
+  const dx=e.clientX-startX;
+  const seek=Math.max(0,startTime+dx*0.03);
+  player.seekTo(seek,true);
+  scan.style.transform=`rotate(${dx*0.6}deg)`;
+});
+
+window.addEventListener("pointerup",()=>{
+  if(!dragging) return;
+  dragging=false;
+  scan.style.transform="";
+  player.playVideo();
+});
+
+/* ===== 名曲牆切歌 ===== */
+document.querySelectorAll(".track").forEach(t=>{
+  t.onclick=()=>{
+    if(!started) return;
+    player.loadVideoById(t.dataset.id);
+  };
+});
+</script>
+
+</body>
+</html>
