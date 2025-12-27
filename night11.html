@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
+<title>DJ Radar · Commercial</title>
+
+<style>
+html,body{
+  margin:0;
+  background:#000;
+  overflow:hidden;
+  font-family:"Microsoft JhengHei",sans-serif;
+  color:#0ff;
+}
+#app{
+  position:fixed;
+  inset:0;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
+
+/* 雷達 */
+.radar{
+  position:relative;
+  width:80vmin;
+  height:80vmin;
+  max-width:900px;
+  max-height:900px;
+  border-radius:50%;
+  background:radial-gradient(circle,
+    rgba(0,255,255,.35),
+    rgba(0,255,255,.08) 60%,
+    #000 72%);
+  box-shadow:0 0 60px #0ff;
+}
+
+/* 掃描線 */
+.scan{
+  position:absolute;
+  inset:0;
+  border-radius:50%;
+  background:conic-gradient(
+    from 0deg,
+    rgba(0,255,255,.9),
+    rgba(0,255,255,0) 60%
+  );
+  animation:spin 6s linear infinite;
+}
+
+/* 唱片 */
+.disc{
+  position:absolute;
+  inset:22%;
+  border-radius:50%;
+  overflow:hidden;
+  background:#000;
+  z-index:3;
+}
+
+/* YouTube iframe */
+#player iframe{
+  width:100%;
+  height:100%;
+  border:none;
+}
+
+/* 點擊層（手機必須） */
+#clickLayer{
+  position:absolute;
+  inset:0;
+  background:rgba(0,0,0,.75);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  font-size:28px;
+  cursor:pointer;
+  z-index:10;
+}
+
+/* 名曲牆 */
+.wall{
+  position:fixed;
+  bottom:20px;
+  display:flex;
+  gap:12px;
+}
+.track{
+  padding:8px 14px;
+  border:1px solid #0ff;
+  border-radius:16px;
+  cursor:pointer;
+}
+.track:hover{
+  background:#0ff;
+  color:#000;
+}
+
+/* HUD */
+.hud{
+  position:fixed;
+  top:20px;
+  left:20px;
+}
+.logo{
+  font-size:26px;
+  font-weight:bold;
+}
+.status{
+  font-size:14px;
+  opacity:.8;
+}
+.trackname{
+  margin-top:6px;
+  font-size:18px;
+}
+
+@keyframes spin{
+  to{ transform:rotate(360deg); }
+}
+</style>
+</head>
+
+<body>
+<div id="app">
+
+  <div class="radar">
+    <div class="scan"></div>
+
+    <div class="disc">
+      <div id="player"></div>
+    </div>
+
+    <!-- 手機解鎖層 -->
+    <div id="clickLayer">▶ TAP TO START</div>
+  </div>
+
+</div>
+
+<div class="hud">
+  <div class="logo">PP • DJ SYSTEM</div>
+  <div class="status" id="mode">LIVE MODE</div>
+  <div class="trackname" id="trackName">Night Drive</div>
+</div>
+
+<div class="wall">
+  <div class="track" data-id="h0ffIJ7ZO4U">Night Drive</div>
+  <div class="track" data-id="_zOjRlVpAOQ">Cyber City</div>
+  <div class="track" data-id="FLTB8kMFav8">DJ Future</div>
+</div>
+
+<script src="https://www.youtube.com/iframe_api"></script>
+<script>
+let player;
+let started=false;
+let demoTimer;
+let demoIndex=0;
+
+const demoList=[
+  "h0ffIJ7ZO4U",
+  "_zOjRlVpAOQ",
+  "FLTB8kMFav8"
+];
+
+function onYouTubeIframeAPIReady(){
+  player=new YT.Player("player",{
+    videoId:demoList[0],
+    playerVars:{
+      playsinline:1,
+      controls:0,
+      rel:0,
+      modestbranding:1
+    }
+  });
+}
+
+/* 👉 手機必有聲的唯一正確方式 */
+document.getElementById("clickLayer").onclick=()=>{
+  if(!player) return;
+  player.playVideo();      // ← 一定要在點擊內
+  started=true;
+  document.getElementById("clickLayer").style.display="none";
+  startIdleDemo();
+};
+
+/* 名曲牆 */
+document.querySelectorAll(".track").forEach(t=>{
+  t.onclick=()=>{
+    if(!started) return;
+    stopDemo();
+    document.getElementById("trackName").textContent=t.textContent;
+    player.loadVideoById(t.dataset.id);
+  };
+});
+
+/* 自動 Demo */
+function startIdleDemo(){
+  clearTimeout(demoTimer);
+  demoTimer=setTimeout(()=>{
+    document.getElementById("mode").textContent="DEMO MODE";
+    runDemo();
+  },30000);
+}
+function runDemo(){
+  player.loadVideoById(demoList[demoIndex]);
+  demoIndex=(demoIndex+1)%demoList.length;
+  demoTimer=setTimeout(runDemo,25000);
+}
+function stopDemo(){
+  document.getElementById("mode").textContent="LIVE MODE";
+  clearTimeout(demoTimer);
+}
+["touchstart","mousedown"].forEach(e=>{
+  window.addEventListener(e,startIdleDemo);
+});
+</script>
+</body>
+</html>
