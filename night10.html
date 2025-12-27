@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DJ Radar · Commercial Edition</title>
+
+<style>
+body{
+  margin:0;
+  background:#000;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+  font-family:"Microsoft JhengHei",sans-serif;
+  color:#0ff;
+  overflow:hidden;
+}
+
+/* ===== 雷達 ===== */
+.radar{
+  position:relative;
+  width:70vmin;
+  height:70vmin;
+  border-radius:50%;
+  background:radial-gradient(circle,
+    rgba(0,255,255,.35),
+    rgba(0,255,255,.05) 60%,
+    #000 72%);
+  box-shadow:0 0 60px #0ff;
+}
+
+/* 外圈 */
+.radar::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  border-radius:50%;
+  background:conic-gradient(#0ff,#033,#0ff);
+  animation:spin 18s linear infinite;
+  opacity:.6;
+}
+
+/* 掃描線 */
+.scan{
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+}
+.scan::before{
+  content:"";
+  position:absolute;
+  width:50%;
+  height:2px;
+  top:50%;
+  left:50%;
+  transform-origin:left center;
+  background:linear-gradient(to right,transparent,#0ff);
+  box-shadow:0 0 12px #0ff;
+}
+
+/* 唱片 */
+.disc{
+  position:absolute;
+  inset:22%;
+  border-radius:50%;
+  overflow:hidden;
+  background:#000;
+  z-index:2;
+}
+
+/* YouTube iframe */
+#player iframe{
+  width:100%;
+  height:100%;
+  border:none;
+  pointer-events:none;
+}
+
+/* 點擊解鎖層 */
+.click{
+  position:absolute;
+  inset:0;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  font-size:28px;
+  background:rgba(0,0,0,.75);
+  cursor:pointer;
+  z-index:5;
+}
+
+/* HUD */
+.hud{
+  position:absolute;
+  top:20px;
+  left:20px;
+}
+.logo{font-size:26px;font-weight:bold}
+.status{font-size:14px;opacity:.8}
+
+/* 時間軸 */
+.timeline{
+  position:absolute;
+  bottom:90px;
+  width:60%;
+  height:6px;
+  background:#022;
+  border-radius:6px;
+  overflow:hidden;
+}
+.progress{
+  height:100%;
+  width:0%;
+  background:linear-gradient(90deg,#0ff,#6ff);
+}
+
+/* 倒數 */
+.countdown{
+  position:absolute;
+  bottom:65px;
+  font-size:14px;
+}
+
+/* Drop 字樣 */
+.drop{
+  position:absolute;
+  font-size:34px;
+  opacity:0;
+  text-shadow:0 0 20px #0ff;
+}
+
+/* DJ 旋鈕 */
+.knob{
+  position:absolute;
+  right:30px;
+  bottom:30px;
+  width:90px;
+  height:90px;
+  border-radius:50%;
+  border:2px solid #0ff;
+  box-shadow:0 0 20px #0ff;
+  background:radial-gradient(circle,#022,#000);
+  cursor:grab;
+}
+
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+
+<body>
+
+<div class="hud">
+  <div class="logo">PP • DJ SYSTEM</div>
+  <div class="status" id="status">READY</div>
+</div>
+
+<div class="radar" id="radar">
+  <div class="scan" id="scan"></div>
+
+  <div class="disc" id="disc">
+    <div id="player"></div>
+  </div>
+
+  <div class="click" id="click">▶ TAP TO START</div>
+  <div class="drop" id="drop">DROP</div>
+</div>
+
+<div class="timeline">
+  <div class="progress" id="progress"></div>
+</div>
+<div class="countdown" id="countdown">--:--</div>
+
+<div class="knob" id="knob"></div>
+
+<script src="https://www.youtube.com/iframe_api"></script>
+
+<script>
+let player, started=false;
+let energy=0, dropLock=false;
+
+/* ===== YouTube ===== */
+function onYouTubeIframeAPIReady(){
+  player=new YT.Player("player",{
+    videoId:"hkN1Ic1F_lY",
+    playerVars:{playsinline:1,controls:0}
+  });
+}
+
+/* ===== 點擊必有聲 ===== */
+click.onclick=()=>{
+  player.playVideo();
+  click.style.display="none";
+  started=true;
+  status.innerText="PLAYING";
+};
+
+/* ===== Scratch ===== */
+let dragging=false, startX=0, startTime=0;
+disc.addEventListener("pointerdown",e=>{
+  if(!started) return;
+  dragging=true;
+  startX=e.clientX;
+  startTime=player.getCurrentTime();
+  player.pauseVideo();
+});
+window.addEventListener("pointermove",e=>{
+  if(!dragging) return;
+  const dx=e.clientX-startX;
+  player.seekTo(Math.max(0,startTime+dx*0.04),true);
+  injectEnergy(Math.abs(dx)*0.01);
+});
+window.addEventListener("pointerup",()=>{
+  if(dragging){ dragging=false; player.playVideo(); }
+});
+
+/* ===== 旋鈕 ===== */
+const knob=document.getElementById("knob");
+let rotating=false,lastAngle=0;
+knob.addEventListener("pointerdown",e=>{
+  rotating=true;
+  knob.setPointerCapture(e.pointerId);
+});
+knob.addEventListener("pointermove",e=>{
+  if(!rotating||!started) return;
+  const r=knob.getBoundingClientRect();
+  const cx=r.left+r.width/2, cy=r.top+r.height/2;
+  const ang=Math.atan2(e.clientY-cy,e.clientX-cx)*180/Math.PI;
+  const d=ang-lastAngle; lastAngle=ang;
+  player.seekTo(player.getCurrentTime()+d*0.02,true);
+  knob.style.transform=`rotate(${ang}deg)`;
+  injectEnergy(Math.abs(d)*0.02);
+});
+window.addEventListener("pointerup",()=>rotating=false);
+
+/* ===== Energy / Drop ===== */
+function injectEnergy(v){
+  energy=Math.min(1,energy+v);
+  if(energy>0.85 && !dropLock){
+    triggerDrop();
+    dropLock=true;
+    setTimeout(()=>dropLock=false,5000);
+  }
+}
+function triggerDrop(){
+  drop.style.opacity=1;
+  radar.style.boxShadow="0 0 120px #0ff";
+  setTimeout(()=>{
+    drop.style.opacity=0;
+    radar.style.boxShadow="0 0 60px #0ff";
+  },800);
+}
+
+/* ===== 時間軸 ===== */
+setInterval(()=>{
+  if(!started) return;
+  const cur=player.getCurrentTime();
+  const dur=player.getDuration()||1;
+  progress.style.width=(cur/dur*100)+"%";
+  countdown.innerText=
+    Math.floor((dur-cur)/60)+":"+String(Math.floor((dur-cur)%60)).padStart(2,"0");
+  energy*=0.95;
+},300);
+</script>
+
+</body>
+</html>
+
