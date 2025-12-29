@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>PLAY</title>
+<style>
+html,body{
+  margin:0;
+  width:100%;
+  height:100%;
+  background:#000;
+  overflow:hidden;
+}
+video{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  background:#000;
+}
+#tap{
+  position:absolute;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:28px;
+  color:#fff;
+  background:rgba(0,0,0,.6);
+  z-index:10;
+}
+</style>
+</head>
+<body>
+
+<video id="v" playsinline webkit-playsinline preload="auto">
+  <source src="60.mp4" type="video/mp4">
+</video>
+
+<div id="tap">▶ TAP TO PLAY</div>
+
+<script>
+const v = document.getElementById("v");
+const tap = document.getElementById("tap");
+
+tap.onclick = () => {
+  v.play();
+  tap.style.display = "none";
+};
+</script>
+
+</body>
+</html>
