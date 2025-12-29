@@ -1,0 +1,197 @@
+<!-- <!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+
+<!-- 🔥 LINE / 手機沉浸式關鍵 -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="theme-color" content="#000000">
+
+<title>LINE Video</title>
+
+<style>
+html,body{
+  margin:0;
+  width:100%;
+  height:100%;
+  background:#000;
+  overflow:hidden;
+  font-family:"Microsoft JhengHei",sans-serif;
+}
+
+/* 容器 */
+#wrap{
+  position:fixed;
+  inset:0;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  background:#000;
+}
+
+/* 影片 */
+video{
+  width:100%;
+  height:100%;
+  object-fit:contain;
+}
+
+/* 點擊播放層（LINE 必須） */
+#tap{
+  position:absolute;
+  inset:0;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  background:rgba(0,0,0,.55);
+  color:#fff;
+  font-size:28px;
+  letter-spacing:2px;
+  cursor:pointer;
+  z-index:10;
+}
+</style>
+</head>
+
+<body>
+
+<div id="wrap">
+
+  <video id="v" playsinline webkit-playsinline>
+    <source src="60.mp4" type="video/mp4">
+  </video>
+
+  <div id="tap">▶ 點擊播放</div>
+
+</div>
+
+<script>
+const v = document.getElementById("v");
+const tap = document.getElementById("tap");
+
+/* 模擬 LINE WebView：隱藏網址列 */
+window.addEventListener("load",()=>{
+  setTimeout(()=>window.scrollTo(0,1),50);
+});
+
+/* 點擊才播放（手機政策） */
+tap.onclick = ()=>{
+  tap.style.display="none";
+  v.play();
+};
+
+/* 播完回封面 */
+v.onended = ()=>{
+  v.currentTime = 0;
+  tap.style.display="flex";
+};
+</script>
+
+</body>
+</html>
+ -->
+ <!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport"
+content="width=device-width,initial-scale=1.0,user-scalable=no">
+
+<title>LINE Activity</title>
+
+<style>
+html,body{
+  margin:0;
+  width:100%;
+  height:100%;
+  background:#000;
+  overflow:hidden;
+  font-family:"Microsoft JhengHei",sans-serif;
+}
+
+/* 啟動畫面 */
+#boot{
+  position:fixed;
+  inset:0;
+  background:#000;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  color:#fff;
+  font-size:22px;
+  z-index:20;
+}
+
+/* 點擊層 */
+#tap{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.85);
+  display:none;
+  justify-content:center;
+  align-items:center;
+  color:#fff;
+  font-size:26px;
+  cursor:pointer;
+  z-index:10;
+}
+
+/* 影片容器 */
+#video{
+  position:fixed;
+  inset:0;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
+
+/* iframe 全螢幕 */
+iframe{
+  width:100%;
+  height:100%;
+  border:none;
+}
+</style>
+</head>
+
+<body>
+
+<!-- 啟動畫面 -->
+<div id="boot">載入中…</div>
+
+<!-- 點擊開始 -->
+<div id="tap">▶ 點一下開始</div>
+
+<!-- 影片 -->
+<div id="video">
+  <iframe id="yt"
+    src=""
+    allow="autoplay; fullscreen"
+    allowfullscreen>
+  </iframe>
+</div>
+
+<script>
+// === 設定你的影片 ID ===
+const VIDEO_ID = "h0ffIJ7ZO4U"; // 換成你的
+
+// 啟動畫面 0.6 秒
+setTimeout(()=>{
+  document.getElementById("boot").style.display="none";
+  document.getElementById("tap").style.display="flex";
+},600);
+
+// 點擊後播放
+document.getElementById("tap").onclick = ()=>{
+  document.getElementById("tap").style.display="none";
+
+  document.getElementById("yt").src =
+    "https://www.youtube.com/embed/" + VIDEO_ID +
+    "?autoplay=1&playsinline=1&controls=0&rel=0&modestbranding=1";
+};
+</script>
+
+</body>
+</html>
