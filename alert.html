@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<title>Alert</title>
+
+<style>
+html, body {
+  margin: 0;
+  height: 100%;
+  background: black;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.alert-box {
+  border: 3px solid red;
+  padding: 20px;
+  text-align: center;
+  animation: blink 1s infinite;
+}
+
+.alert-box h1 {
+  color: red;
+  font-size: 28px;
+  margin: 0;
+}
+
+.alert-box p {
+  color: #fff;
+  margin-top: 10px;
+}
+
+@keyframes blink {
+  0%   { box-shadow: 0 0 10px red; }
+  50%  { box-shadow: 0 0 40px red; }
+  100% { box-shadow: 0 0 10px red; }
+}
+</style>
+</head>
+
+<body>
+
+<div class="alert-box">
+  <h1>⚠ 越線警報</h1>
+  <p>中線異常活動</p>
+  <p>狀態：監控中</p>
+</div>
+
+</body>
+</html>
