@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>500俱樂部 · DJ Radar</title>
+
+<style>
+body{
+  margin:0;
+  background:#000;
+  color:#00ffff;
+  font-family:"Microsoft JhengHei",sans-serif;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  height:100vh;
+  overflow:hidden;
+}
+
+/* ===== 標題 ===== */
+.title{
+  font-size:34px;
+  margin-bottom:14px;
+  text-shadow:0 0 12px rgba(0,255,255,.8);
+}
+
+/* ===== 雷達舞台 ===== */
+.radar{
+  position:relative;
+  width:520px;
+  height:520px;
+  border-radius:50%;
+}
+
+/* ===== 外圈霓虹（旋轉） ===== */
+.ring{
+  position:absolute;
+  inset:0;
+  border-radius:50%;
+  background:
+    conic-gradient(
+      from 0deg,
+      rgba(0,255,255,.9),
+      rgba(255,0,255,.6),
+      rgba(0,255,255,.9)
+    );
+  filter:blur(1px);
+  animation:spin 18s linear infinite;
+  opacity:0;
+  transition:opacity 1s;
+  pointer-events:none;
+  box-shadow:
+    0 0 40px rgba(0,255,255,.8),
+    0 0 80px rgba(255,0,255,.6);
+}
+.ring.show{opacity:1}
+
+/* 中空 */
+.ring::before{
+  content:"";
+  position:absolute;
+  inset:60px;
+  border-radius:50%;
+  background:#000;
+}
+
+/* ===== 十字 HUD ===== */
+.cross{
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+}
+.cross::before,
+.cross::after{
+  content:"";
+  position:absolute;
+  background:rgba(0,255,255,.35);
+}
+.cross::before{
+  width:2px;height:100%;left:50%;
+}
+.cross::after{
+  height:2px;width:100%;top:50%;
+}
+
+/* ===== ✅ iframe 真正播放層 ===== */
+.video{
+  position:absolute;
+  inset:140px;
+  border-radius:50%;
+  overflow:hidden;
+  z-index:5;
+}
+.video iframe{
+  width:100%;
+  height:100%;
+  border:none;
+}
+
+/* ===== 唱片遮罩（不旋轉） ===== */
+.disc{
+  position:absolute;
+  inset:160px;
+  border-radius:50%;
+  background:radial-gradient(circle,#222 0%,#000 70%);
+  box-shadow:inset 0 0 30px rgba(0,0,0,.9);
+  z-index:6;
+  pointer-events:none;
+}
+
+/* ===== 波形 ===== */
+.wave{
+  position:absolute;
+  bottom:80px;
+  left:50%;
+  transform:translateX(-50%);
+  display:flex;
+  gap:6px;
+  z-index:7;
+  pointer-events:none;
+}
+.wave span{
+  width:8px;
+  height:20px;
+  background:#00ffff;
+  box-shadow:0 0 10px #00ffff;
+  animation:wave 1s ease-in-out infinite;
+  opacity:0;
+}
+.wave.play span{opacity:1}
+.wave span:nth-child(n){animation-delay:calc(var(--i)*.12s)}
+
+/* ===== 動畫 ===== */
+@keyframes spin{
+  from{transform:rotate(0deg)}
+  to{transform:rotate(360deg)}
+}
+@keyframes wave{
+  0%{height:12px}
+  50%{height:46px}
+  100%{height:12px}
+}
+
+/* ===== 按鈕 ===== */
+.btn{
+  margin-top:20px;
+  padding:10px 26px;
+  border-radius:30px;
+  border:none;
+  background:#00ffff;
+  color:#000;
+  font-size:18px;
+  cursor:pointer;
+  box-shadow:0 0 18px rgba(0,255,255,.8);
+}
+</style>
+</head>
+
+<body>
+
+<div class="title">500俱樂部 · DJ Radar</div>
+
+<div class="radar">
+
+  <div class="ring" id="ring"></div>
+  <div class="cross"></div>
+
+  <!-- ✅ 真正播放聲音的 iframe -->
+  <div class="video">
+    <iframe
+      id="yt"
+      src=""
+      allow="autoplay; encrypted-media"
+      allowfullscreen
+      playsinline
+      webkit-playsinline>
+    </iframe>
+  </div>
+
+  
+
+  <div class="wave" id="wave">
+    <span style="--i:1"></span>
+    <span style="--i:2"></span>
+    <span style="--i:3"></span>
+    <span style="--i:4"></span>
+    <span style="--i:5"></span>
+    <span style="--i:6"></span>
+    <span style="--i:7"></span>
+  </div>
+
+</div>
+
+<button class="btn" onclick="play()">▶ 播放</button>
+
+<script>
+const yt=document.getElementById("yt");
+const ring=document.getElementById("ring");
+const wave=document.getElementById("wave");
+
+/* ===== 播放（使用者點擊 → iOS / LINE 才會有聲） ===== */
+function play(){
+  ring.classList.add("show");
+  wave.classList.add("play");
+
+  yt.src =
+    "https://www.youtube.com/embed/phn_o0kmR18?autoplay=1&playsinline=1";
+}
+</script>
+
+</body>
+</html>
