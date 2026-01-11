@@ -1,0 +1,631 @@
+
+<!-- <!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DJ Radar · Commercial Edition</title>
+
+<style>
+body{
+  margin:0;
+  background:#000;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+  font-family:"Microsoft JhengHei",sans-serif;
+  color:#00ffff;
+  overflow:hidden;
+}
+
+/* ===== 標題 ===== */
+.title{
+  position:absolute;
+  top:40px;
+  font-size:20px;
+  text-shadow:0 0 20px #00ffff;
+  }
+
+/* ===== 雷達本體 ===== */
+.radar{
+  position:relative;
+  width:520px;
+  height:520px;
+  border-radius:50%;
+  background:radial-gradient(circle,
+    rgba(0,255,255,.35),
+    rgba(0,255,255,.05) 60%,
+    #000 72%);
+  box-shadow:0 0 50px rgba(0,255,255,.9);
+  overflow:hidden;
+}
+
+/* ===== 掃描外圈 =====（⚠ 不可吃點擊） */
+.radar::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  border-radius:50%;
+  background:conic-gradient(#00ffff,#003333,#00ffff);
+  animation:spin 16s linear infinite;
+  opacity:.7;
+  pointer-events:none; /* ⭐ 關鍵 */
+}
+
+/* 中央唱片 */
+.disc{
+  position:absolute;
+  inset:120px;
+  border-radius:50%;
+  overflow:hidden;
+  background:#000;
+  z-index:2;
+}
+
+/* YouTube */
+#player iframe{
+  width:100%;
+  height:100%;
+  border:none;
+  border-radius:50%;
+}
+
+/* 點擊播放層（最上層） */
+.play-btn{
+  position:absolute;
+  inset:0;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  font-size:36px;
+  cursor:pointer;
+  background:rgba(0,0,0,.65);
+  z-index:9999;
+  text-shadow:0 0 20px #00ffff;
+}
+
+/* TARGET LOCK */
+.lock{
+  position:absolute;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%);
+  font-size:32px;
+  opacity:0;
+  color:#00ffff;
+  text-shadow:0 0 20px #00ffff;
+  pointer-events:none;
+}
+
+/* 雷達命中光點 */
+.dot{
+  position:absolute;
+  width:8px;
+  height:8px;
+  background:#00ffff;
+  border-radius:50%;
+  box-shadow:0 0 15px #00ffff;
+  animation:fade 1.2s forwards;
+  pointer-events:none;
+}
+
+/* HUD */
+.hud{
+  position:absolute;
+  bottom:30px;
+  font-size:18px;
+  text-shadow:0 0 10px #00ffff;
+}
+
+@keyframes spin{
+  from{transform:rotate(0deg)}
+  to{transform:rotate(360deg)}
+}
+
+@keyframes fade{
+  to{opacity:0; transform:scale(2)}
+}
+</style>
+</head>
+
+<body>
+
+<div class="title">DJ Radar · Commercial</div>
+
+<div class="radar" id="radar">
+
+  <div class="disc">
+    <div id="player"></div>
+  </div>
+
+  <div class="play-btn" id="playBtn">▶ CLICK TO START</div>
+  <div class="lock" id="lock">TARGET LOCK</div>
+
+</div>
+
+<div class="hud" id="hud">READY</div>
+
+<!-- YouTube API -->
+<script src="https://www.youtube.com/iframe_api"></script>
+
+<script>
+let player;
+let started=false;
+
+function onYouTubeIframeAPIReady(){
+  player=new YT.Player("player",{
+    videoId:"1bI-Pt_3R0Q", // 🔁 換你要的 YouTube ID
+    playerVars:{
+      playsinline:1,
+      controls:0,
+      rel:0
+    }
+  });
+}
+
+const playBtn=document.getElementById("playBtn");
+const hud=document.getElementById("hud");
+const lock=document.getElementById("lock");
+const radar=document.getElementById("radar");
+
+playBtn.addEventListener("click",()=>{
+  player.playVideo();          // ✅ 使用者點擊 → 一定有聲
+  playBtn.style.display="none";
+  hud.innerText="PLAYING";
+  started=true;
+});
+
+/* 雷達掃描命中效果 */
+setInterval(()=>{
+  if(!started) return;
+
+  lock.style.opacity=1;
+  setTimeout(()=>lock.style.opacity=0,500);
+
+  const dot=document.createElement("div");
+  dot.className="dot";
+  dot.style.left=Math.random()*100+"%";
+  dot.style.top=Math.random()*100+"%";
+  radar.appendChild(dot);
+
+  setTimeout(()=>dot.remove(),1200);
+},1500);
+</script>
+
+</body>
+</html>
+
+
+/* 雷達本體 */
+.radar{
+  position:relative;
+  width:520px;
+  height:520px;
+  border-radius:50%;
+  background:radial-gradient(circle,
+    rgba(0,255,255,.35),
+    rgba(0,255,255,.05) 60%,
+    #000 72%);
+  box-shadow:0 0 50px rgba(0,255,255,.9);
+  overflow:hidden;
+}
+
+/* 掃描外圈（⚠ 不可吃點擊） */
+.radar::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  border-radius:50%;
+  background:conic-gradient(#00ffff,#003333,#00ffff);
+  animation:spin 16s linear infinite;
+  opacity:.7;
+  pointer-events:none; /* ⭐ 關鍵 */
+}
+
+/* 中央唱片 */
+.disc{
+  position:absolute;
+  inset:120px;
+  border-radius:50%;
+  overflow:hidden;
+  background:#000;
+  z-index:2;
+}
+
+/* YouTube */
+#player iframe{
+  width:100%;
+  height:100%;
+  border:none;
+  border-radius:50%;
+}
+
+/* 點擊播放層（最上層） */
+.play-btn{
+  position:absolute;
+  inset:0;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  font-size:36px;
+  cursor:pointer;
+  background:rgba(0,0,0,.65);
+  z-index:9999;
+  text-shadow:0 0 20px #00ffff;
+}
+
+/* TARGET LOCK */
+.lock{
+  position:absolute;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%);
+  font-size:32px;
+  opacity:0;
+  color:#00ffff;
+  text-shadow:0 0 20px #00ffff;
+  pointer-events:none;
+}
+
+/* 雷達命中光點 */
+.dot{
+  position:absolute;
+  width:8px;
+  height:8px;
+  background:#00ffff;
+  border-radius:50%;
+  box-shadow:0 0 15px #00ffff;
+  animation:fade 1.2s forwards;
+  pointer-events:none;
+}
+
+/* HUD */
+.hud{
+  position:absolute;
+  bottom:30px;
+  font-size:18px;
+  text-shadow:0 0 10px #00ffff;
+}
+
+@keyframes spin{
+  from{transform:rotate(0deg)}
+  to{transform:rotate(360deg)}
+}
+
+@keyframes fade{
+  to{opacity:0; transform:scale(2)}
+}
+</style>
+</head>
+
+<body>
+
+<div class="title">DJ Radar · Commercial</div>
+
+<div class="radar" id="radar">
+
+  <div class="disc">
+    <div id="player"></div>
+  </div>
+
+  <div class="play-btn" id="playBtn">▶ CLICK TO START</div>
+  <div class="lock" id="lock">TARGET LOCK</div>
+
+</div>
+
+<div class="hud" id="hud">READY</div>
+
+<!-- YouTube API -->
+<script src="https://www.youtube.com/iframe_api"></script>
+
+<script>
+let player;
+let started=false;
+
+function onYouTubeIframeAPIReady(){
+  player=new YT.Player("player",{
+    videoId:"1bI-Pt_3R0Q", // 🔁 換你要的 YouTube ID
+    playerVars:{
+      playsinline:1,
+      controls:0,
+      rel:0
+    }
+  });
+}
+
+const playBtn=document.getElementById("playBtn");
+const hud=document.getElementById("hud");
+const lock=document.getElementById("lock");
+const radar=document.getElementById("radar");
+
+playBtn.addEventListener("click",()=>{
+  player.playVideo();          // ✅ 使用者點擊 → 一定有聲
+  playBtn.style.display="none";
+  hud.innerText="PLAYING";
+  started=true;
+});
+
+/* 雷達掃描命中效果 */
+setInterval(()=>{
+  if(!started) return;
+
+  lock.style.opacity=1;
+  setTimeout(()=>lock.style.opacity=0,500);
+
+  const dot=document.createElement("div");
+  dot.className="dot";
+  dot.style.left=Math.random()*100+"%";
+  dot.style.top=Math.random()*100+"%";
+  radar.appendChild(dot);
+
+  setTimeout(()=>dot.remove(),1200);
+},1500);
+</script>
+
+</body>
+</html>
+ -->
+ 
+ <!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DJ Radar · Gold Commercial Edition</title>
+
+<style>
+/* ===== 防手機自動放大 ===== */
+html{
+  -webkit-text-size-adjust:100%;
+  text-size-adjust:100%;
+}
+
+/* ===== 全域 ===== */
+body{
+  margin:0;
+  background:#000;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+  font-family:"Microsoft JhengHei",system-ui,sans-serif;
+  color:#f5d77a;
+  overflow:hidden;
+}
+
+/* ===== 金色文字通用 ===== */
+.gold-text{
+  background:linear-gradient(180deg,#fff6cc,#f5d77a,#cfa642);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  text-shadow:
+    0 0 6px rgba(245,215,122,.6),
+    0 0 14px rgba(255,200,80,.35);
+}
+
+/* ===== 標題 ===== */
+.title{
+  position:absolute;
+  top:40px;
+  font-size:20px;
+}
+.title span{display:block}
+
+/* ===== 雷達本體 ===== */
+.radar{
+  position:relative;
+  width:520px;
+  height:520px;
+  border-radius:50%;
+  background:radial-gradient(circle,
+    rgba(255,215,120,.35),
+    rgba(255,215,120,.05) 60%,
+    #000 72%);
+  box-shadow:0 0 50px rgba(255,215,120,.9);
+  overflow:hidden;
+}
+
+/* ===== 金色掃描外圈 ===== */
+.radar::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  border-radius:50%;
+  background:conic-gradient(
+    #fff6cc,
+    #f5d77a,
+    #cfa642,
+    #f5d77a,
+    #fff6cc
+  );
+  animation:spin 14s linear infinite;
+  opacity:.75;
+  pointer-events:none;
+}
+
+/* ===== 中央唱片 ===== */
+.disc{
+  position:absolute;
+  inset:120px;
+  border-radius:50%;
+  overflow:hidden;
+  background:#000;
+  z-index:2;
+}
+
+/* YouTube */
+#player iframe{
+  width:100%;
+  height:100%;
+  border:none;
+  border-radius:50%;
+}
+
+/* ===== 點擊播放層 ===== */
+.play-btn{
+  position:absolute;
+  inset:0;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  font-size:36px;
+  cursor:pointer;
+  background:rgba(0,0,0,.65);
+  z-index:9999;
+}
+
+/* ===== TARGET LOCK ===== */
+.lock{
+  position:absolute;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%) scale(.9);
+  font-size:32px;
+  opacity:0;
+  pointer-events:none;
+}
+
+/* 鎖定閃爍 */
+.lock.flash{
+  animation:lockFlash .8s ease-out;
+}
+
+/* 雷達命中光點 */
+.dot{
+  position:absolute;
+  width:8px;
+  height:8px;
+  background:#f5d77a;
+  border-radius:50%;
+  box-shadow:0 0 15px #f5d77a;
+  animation:fade 1.2s forwards;
+  pointer-events:none;
+}
+
+/* HUD */
+.hud{
+  position:absolute;
+  bottom:30px;
+  font-size:18px;
+}
+
+/* ===== 動畫 ===== */
+@keyframes spin{
+  from{transform:rotate(0deg)}
+  to{transform:rotate(360deg)}
+}
+@keyframes fade{
+  to{opacity:0; transform:scale(2)}
+}
+@keyframes lockFlash{
+  0%{opacity:0; transform:translate(-50%,-50%) scale(.8)}
+  40%{opacity:1; transform:translate(-50%,-50%) scale(1.1)}
+  100%{opacity:0; transform:translate(-50%,-50%) scale(1.4)}
+}
+
+/* ===== 手機全螢幕最佳化 ===== */
+@media (max-width:480px){
+
+  body{
+    align-items:flex-start;
+  }
+
+  .radar{
+    width:320px;
+    height:320px;
+    margin-top:100px;
+  }
+
+  .disc{
+    inset:70px;
+  }
+
+  .title{
+    top:20px;
+    font-size:14px;
+  }
+
+  .play-btn{
+    font-size:22px;
+  }
+
+  .lock{
+    font-size:20px;
+  }
+
+  .hud{
+    font-size:14px;
+    bottom:20px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div class="title gold-text">
+  DJ Radar<br>Commercial
+</div>
+
+<div class="radar" id="radar">
+
+  <div class="disc">
+    <div id="player"></div>
+  </div>
+
+  <div class="play-btn gold-text" id="playBtn">▶ CLICK TO START</div>
+  <div class="lock gold-text" id="lock">TARGET LOCK</div>
+
+</div>
+
+<div class="hud gold-text" id="hud">READY</div>
+
+<script src="https://www.youtube.com/iframe_api"></script>
+
+<script>
+let player;
+let started=false;
+
+function onYouTubeIframeAPIReady(){
+  player=new YT.Player("player",{
+    videoId:"Ma5Yn2P0wfw",
+    playerVars:{
+      playsinline:1,
+      controls:0,
+      rel:0
+    }
+  });
+}
+
+const playBtn=document.getElementById("playBtn");
+const hud=document.getElementById("hud");
+const lock=document.getElementById("lock");
+const radar=document.getElementById("radar");
+
+playBtn.addEventListener("click",()=>{
+  player.playVideo();
+  playBtn.style.display="none";
+  hud.innerText="PLAYING";
+  started=true;
+
+  lock.classList.add("flash");
+  setTimeout(()=>lock.classList.remove("flash"),800);
+});
+
+/* 雷達掃描命中效果 */
+setInterval(()=>{
+  if(!started) return;
+
+  const dot=document.createElement("div");
+  dot.className="dot";
+  dot.style.left=Math.random()*100+"%";
+  dot.style.top=Math.random()*100+"%";
+  radar.appendChild(dot);
+
+  setTimeout(()=>dot.remove(),1200);
+},1500);
+</script>
+
+</body>
+</html>
