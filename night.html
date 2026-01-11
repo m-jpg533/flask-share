@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>DJ RADAR · NIGHT CLUB MODE</title>
+
+<style>
+body{
+  margin:0;
+  background:#000;
+  overflow:hidden;
+  font-family:"Microsoft JhengHei",sans-serif;
+  color:#00ffff;
+}
+
+/* ===== 雷達主體 ===== */
+.radar{
+  position:absolute;
+  inset:0;
+  margin:auto;
+  width:90vmin;
+  height:90vmin;
+  border-radius:50%;
+  background:
+    radial-gradient(circle,
+      rgba(0,255,255,.35),
+      rgba(0,255,255,.05) 60%,
+      #000 72%);
+  box-shadow:0 0 80px #00ffff;
+}
+
+/* 掃描線 */
+.scan::before{
+  content:"";
+  position:absolute;
+  width:50%;
+  height:3px;
+  background:linear-gradient(to right,
+    rgba(0,255,255,0),
+    rgba(0,255,255,1));
+  top:50%;
+  left:50%;
+  transform-origin:left center;
+  animation:scan 2.8s linear infinite;
+}
+
+/* 命中光點 */
+.dot{
+  position:absolute;
+  width:10px;
+  height:10px;
+  border-radius:50%;
+  background:#00ffff;
+  box-shadow:0 0 20px #00ffff;
+  animation:dot 2.5s forwards;
+}
+
+@keyframes dot{
+  to{opacity:0; transform:scale(4);}
+}
+@keyframes scan{to{transform:rotate(360deg)}}
+
+/* ===== 唱片 ===== */
+.disc{
+  position:absolute;
+  inset:28%;
+  border-radius:50%;
+  background:#111;
+  animation:spin 6s linear infinite;
+  box-shadow:inset 0 0 40px #000;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ===== YouTube ===== */
+.video{
+  position:absolute;
+  inset:32%;
+  border-radius:50%;
+  overflow:hidden;
+  z-index:3;
+}
+iframe{width:100%;height:100%;border:none}
+
+/* ===== HUD ===== */
+.hud{
+  position:fixed;
+  bottom:5%;
+  left:50%;
+  transform:translateX(-50%);
+  text-align:center;
+}
+.title{
+  font-size:22px;
+  letter-spacing:4px;
+  text-shadow:0 0 20px #00ffff;
+}
+.beat{
+  margin-top:10px;
+  width:320px;
+  height:6px;
+  background:#003333;
+  overflow:hidden;
+}
+.beat span{
+  display:block;
+  width:0%;
+  height:100%;
+  background:#00ffff;
+  transition:.15s;
+}
+
+/* ===== TARGET LOCK ===== */
+.lock{
+  position:absolute;
+  inset:0;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  font-size:32px;
+  letter-spacing:6px;
+  opacity:0;
+  text-shadow:0 0 25px #00ffff;
+}
+.lock.show{opacity:1}
+
+/* ===== 啟動 ===== */
+.start{
+  position:fixed;
+  inset:0;
+  background:#000;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  font-size:34px;
+  cursor:pointer;
+  z-index:999;
+}
+</style>
+</head>
+
+<body>
+
+<div class="radar" id="radar">
+  <div class="scan"></div>
+  <div class="disc"></div>
+
+  <div class="video">
+    <iframe id="yt"></iframe>
+  </div>
+
+  <div class="lock" id="lock">TARGET LOCK</div>
+</div>
+
+<div class="hud">
+  <div class="title" id="song">DJ NIGHT MODE</div>
+  <div class="beat"><span id="beat"></span></div>
+</div>
+
+<div class="start" id="start">▶ CLICK TO START SHOW</div>
+
+<script>
+const yt=document.getElementById("yt");
+const radar=document.getElementById("radar");
+const beat=document.getElementById("beat");
+const lock=document.getElementById("lock");
+const start=document.getElementById("start");
+
+/* 夜店展示歌 */
+const videoId="YIw6OfTfxQc";
+
+start.onclick=()=>{
+  start.style.display="none";
+  yt.src=`https://www.youtube.com/embed/${videoId}?autoplay=1&mute=0&playsinline=1`;
+  startBeat();
+};
+
+/* 節奏驅動視覺（穩定夜店做法） */
+function startBeat(){
+  setInterval(()=>{
+    const power=Math.random();
+    beat.style.width=(power*100)+"%";
+
+    if(power>0.75){
+      lock.classList.add("show");
+      spawnDot();
+      radar.style.boxShadow="0 0 120px #00ffff";
+      setTimeout(()=>{
+        lock.classList.remove("show");
+        radar.style.boxShadow="0 0 80px #00ffff";
+      },200);
+    }
+  },220);
+}
+
+/* 命中光點 */
+function spawnDot(){
+  const dot=document.createElement("div");
+  dot.className="dot";
+  const r=radar.clientWidth/2*Math.random();
+  const a=Math.random()*Math.PI*2;
+  dot.style.left=radar.clientWidth/2+r*Math.cos(a)+"px";
+  dot.style.top=radar.clientHeight/2+r*Math.sin(a)+"px";
+  radar.appendChild(dot);
+  setTimeout(()=>dot.remove(),2500);
+}
+</script>
+
+</body>
+</html>
