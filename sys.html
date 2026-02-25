@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>元宵煙火祝福</title>
+
+<!-- LINE 分享封面 -->
+<meta property="og:title" content="元宵煙火祝福">
+<meta property="og:description" content="點開看專屬煙火祝福 🎆">
+<meta property="og:image" content="https://m-jpg533.github.io/flask-media-share/fireworks-cover.jpg">
+<meta property="og:type" content="website">
+
+<style>
+body{
+  margin:0;
+  background:black;
+  overflow:hidden;
+  touch-action:none;
+  font-family:Arial, sans-serif;
+}
+
+canvas{
+  position:absolute;
+  z-index:1;
+}
+
+/* 文字顯示在畫面中央，金色 */
+#text{
+  position:fixed;
+  width:100%;
+  top:35%;
+  text-align:center;
+  font-size:clamp(24px,6vw,48px);
+  font-weight:bold;
+  color:gold;
+  z-index:10;
+  animation: glow 1s infinite alternate;
+}
+
+@keyframes glow{
+  from{ text-shadow:0 0 10px gold; }
+  to{ text-shadow:0 0 30px yellow; }
+}
+
+/* 名字輸入框 */
+#nameBox{
+  position:fixed;
+  top:50%;
+  width:100%;
+  text-align:center;
+  z-index:15;
+}
+
+#nameBox input{
+  font-size:18px;
+  padding:8px;
+  border-radius:6px;
+  border:none;
+}
+
+#nameBox button{
+  font-size:16px;
+  padding:8px 12px;
+  margin-left:6px;
+  border:none;
+  border-radius:6px;
+}
+
+/* 音樂按鈕 */
+#musicBtn{
+  position:fixed;
+  bottom:20px;
+  right:20px;
+  z-index:20;
+  padding:10px 14px;
+  border:none;
+  border-radius:8px;
+}
+
+/* 重新輸入名字按鈕 */
+#editBtn{
+  position:fixed;
+  top:20px;
+  right:20px;
+  z-index:20;
+  padding:8px 12px;
+  border:none;
+  border-radius:6px;
+}
+
+/* 左下 LINE 分享按鈕 */
+#lineShareBtn{
+  position:fixed;
+  bottom:20px;
+  left:20px;
+  z-index:20;
+  padding:10px 14px;
+  font-size:16px;
+  border:none;
+  border-radius:8px;
+  background:#06C755;
+  color:white;
+}
+</style>
+</head>
+
+<body>
+
+<div id="text">🎆 元宵快樂 🎆</div>
+
+<div id="nameBox">
+  <input id="nameInput" placeholder="輸入名字">
+  <button id="nameBtn">確認</button>
+</div>
+
+<button id="editBtn" style="display:none;">重新輸入名字</button>
+<button id="musicBtn">🔊 音樂</button>
+<button id="lineShareBtn">LINE 分享</button>
+
+<canvas id="fire"></canvas>
+
+<audio id="bgm" loop>
+  <source src="https://m-jpg533.github.io/flask-share/13.mp3.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+const canvas = document.getElementById("fire");
+const ctx = canvas.getContext("2d");
+const bgm = document.getElementById("bgm");
+const text = document.getElementById("text");
+const nameBox = document.getElementById("nameBox");
+const nameInput = document.getElementById("nameInput");
+const editBtn = document.getElementById("editBtn");
+const musicBtn = document.getElementById("musicBtn");
+const lineShareBtn = document.getElementById("lineShareBtn");
+
+function resize(){
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+resize();
+window.addEventListener("resize", resize);
+
+let particles = [];
+let fireColor = "hsl(45,100%,50%)";
+
+/* 名字轉顏色，固定每個名字的煙火顏色 */
+function getColorFromName(name){
+  let hash = 0;
+  for(let i=0;i<name.length;i++){
+    hash = name.charCodeAt(i) + ((hash<<5)-hash);
+  }
+  return `hsl(${Math.abs(hash)%360},100%,50%)`;
+}
+
+/* 彩色煙火粒子 */
+function createFirework(){
+  let x = Math.random()*canvas.width;
+  let y = Math.random()*canvas.height/2;
+  let count = Math.max(50, nameInput.value.length*10); // 名字長度越長，煙火越多
+
+  for(let i=0;i<count;i++){
+    particles.push({
+      x,y,
+      vx:(Math.random()-0.5)*6,
+      vy:(Math.random()-0.5)*6,
+      life:100,
+      color:`hsl(${Math.random()*360},100%,50%)`
+    });
+  }
+}
+
+/* 繪製煙火 */
+function draw(){
+  ctx.fillStyle="rgba(0,0,0,0.2)";
+  ctx.fillRect(0,0,canvas.width,canvas.height);
+
+  particles.forEach((p,i)=>{
+    ctx.beginPath();
+    ctx.arc(p.x,p.y,2,0,Math.PI*2);
+    ctx.fillStyle=p.color;
+    ctx.fill();
+    p.x+=p.vx;
+    p.y+=p.vy;
+    p.life--;
+    if(p.life<=0) particles.splice(i,1);
+  });
+
+  requestAnimationFrame(draw);
+}
+setInterval(createFirework,800);
+draw();
+
+/* 播放煙火+音樂 */
+function userFire(){
+  createFirework();
+  bgm.play().catch(()=>{});
+}
+canvas.addEventListener("click", userFire);
+canvas.addEventListener("touchstart", userFire);
+
+/* 音樂開關 */
+musicBtn.onclick=()=>{
+  if(bgm.paused){
+    bgm.play();
+    musicBtn.textContent="🔊 音樂";
+  }else{
+    bgm.pause();
+    musicBtn.textContent="🔇 靜音";
+  }
+};
+
+/* 設定名字 */
+function setName(name){
+  text.textContent=`🎆 ${name} 元宵快樂 🎆`;
+  text.style.color = "gold"; // 文字永遠金色
+  fireColor=getColorFromName(name);
+  nameBox.style.display="none";
+  editBtn.style.display="block";
+}
+
+/* 確認名字 → 寫入網址 */
+document.getElementById("nameBtn").onclick = () => {
+  const name = nameInput.value.trim();
+  if(!name) return;
+
+  const newUrl = location.pathname + "?name=" + encodeURIComponent(name);
+  history.replaceState(null,"",newUrl);
+
+  setName(name);
+};
+
+/* 重新輸入名字 */
+editBtn.onclick=()=>{
+  nameBox.style.display="block";
+  editBtn.style.display="none";
+};
+
+/* 自動讀取網址名字 */
+const params = new URLSearchParams(location.search);
+const urlName = params.get("name");
+if(urlName){
+  nameInput.value = urlName;
+  setName(urlName);
+}
+
+/* LINE 分享按鈕 */
+lineShareBtn.onclick=()=>{
+  const url = location.href;
+  if(navigator.share){
+    navigator.share({title:"元宵煙火祝福",url:url});
+  }else{
+    window.open("https://social-plugins.line.me/lineit/share?url="+encodeURIComponent(url));
+  }
+};
+
+/* 離開頁面停止音樂 */
+document.addEventListener("visibilitychange",()=>{if(document.hidden) bgm.pause();});
+window.addEventListener("pagehide",()=>bgm.pause());
+window.addEventListener("beforeunload",()=>bgm.pause());
+</script>
+
+</body>
+</html>
