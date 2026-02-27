@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LINE貼圖產生器</title>
+
+<style>
+body{
+  margin:0;
+  background:#111;
+  color:white;
+  text-align:center;
+  font-family:Arial, sans-serif;
+}
+
+canvas{
+  width:260px;
+  height:260px;
+  margin-top:10px;
+}
+
+input{
+  font-size:16px;
+  padding:8px;
+  border-radius:6px;
+  border:none;
+}
+
+button{
+  font-size:15px;
+  padding:8px 12px;
+  margin:6px;
+  border:none;
+  border-radius:8px;
+}
+</style>
+</head>
+
+<body>
+
+<h3 style="color:gold">專屬新年貼圖</h3>
+
+<input id="nameInput" placeholder="輸入名字">
+<button onclick="makeSticker()">產生貼圖</button>
+
+<br>
+<canvas id="card" width="512" height="512"></canvas>
+
+<br>
+<button onclick="downloadSticker()">下載貼圖</button>
+
+<script>
+const canvas = document.getElementById("card");
+const ctx = canvas.getContext("2d");
+
+let imageLoaded = false;
+
+/* ⭐ 產生貼圖 */
+function makeSticker(){
+
+  const name = document.getElementById("nameInput").value.trim();
+  if(!name){
+    alert("請輸入名字");
+    return;
+  }
+
+  const img = new Image();
+
+  /* ⭐ 重要：跨網域允許 */
+  img.crossOrigin = "anonymous";
+
+  /* ⭐ 改成你的圖片 */
+  img.src = "https://m-jpg533.github.io/flask-share/67.jpg";
+
+  img.onload = ()=>{
+    imageLoaded = true;
+
+    ctx.clearRect(0,0,512,512);
+
+    /* ⭐ 圖片填滿 */
+    let scale = Math.max(512/img.width, 512/img.height);
+    let w = img.width * scale;
+    let h = img.height * scale;
+    let x = (512 - w)/2;
+    let y = (512 - h)/2;
+
+    ctx.drawImage(img,x,y,w,h);
+
+    /* ⭐ 金色發光字 */
+    ctx.fillStyle="gold";
+    ctx.font="bold 48px Arial";
+    ctx.textAlign="center";
+    ctx.shadowColor="gold";
+    ctx.shadowBlur=20;
+
+    ctx.fillText(name,256,440);
+    ctx.fillText("新年快樂",256,490);
+
+    ctx.shadowBlur=0;
+  };
+
+  img.onerror = ()=>{
+    alert("圖片載入失敗，請確認圖片網址可直接開啟");
+  };
+}
+
+/* ⭐ 下載貼圖 */
+function downloadSticker(){
+
+  if(!imageLoaded){
+    alert("請先產生貼圖");
+    return;
+  }
+
+  const link = document.createElement("a");
+  link.download = "LINE貼圖.png";
+  link.href = canvas.toDataURL("image/png");
+  link.click();
+}
+</script>
+
+</body>
+</html>
