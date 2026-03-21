@@ -39,7 +39,7 @@ button{
 
 <body>
 
-<h3 style="color:gold">專屬新年貼圖</h3>
+<h3 style="color:gold">貼圖</h3>
 
 <input id="nameInput" placeholder="輸入名字">
 <button onclick="makeSticker()">產生貼圖</button>
@@ -71,7 +71,7 @@ function makeSticker(){
   img.crossOrigin = "anonymous";
 
   /* ⭐ 改成你的圖片 */
-  img.src = "https://m-jpg533.github.io/flask-share/67.jpg";
+  img.src = "https://m-jpg533.github.io/flask-share/51.jpg";
 
   img.onload = ()=>{
     imageLoaded = true;
@@ -95,7 +95,7 @@ function makeSticker(){
     ctx.shadowBlur=20;
 
     ctx.fillText(name,256,440);
-    ctx.fillText("新年快樂",256,490);
+    ctx.fillText("",256,490);
 
     ctx.shadowBlur=0;
   };
